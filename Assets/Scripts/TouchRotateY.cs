@@ -11,7 +11,6 @@ public class TouchRotateY : MonoBehaviour
     }
 
     private float yAxisStart;
-    private float yAxisAdd;
 
     private Vector2 startPos; 
 
@@ -28,7 +27,6 @@ public class TouchRotateY : MonoBehaviour
                 touchState = TouchState.waitingForUp;
                 startPos = t.position;
                 yAxisStart = transform.localEulerAngles.y;
-                yAxisAdd = 0;
             }
             else
             {
@@ -36,7 +34,10 @@ public class TouchRotateY : MonoBehaviour
                 {
                     if (t.phase == TouchPhase.Moved)
                     {
-                        yAxisAdd = startPos.x - t.position.x;
+                        float xPixelsDelta = startPos.x - t.position.x;
+                        float xDistanceDelta = (xPixelsDelta / Screen.dpi) * 2.54f; // Convert to CM
+
+                        float yAxisAdd = xDistanceDelta * 45f;
 
                         Vector3 rot = transform.localEulerAngles;
                         rot.y = yAxisStart + yAxisAdd;
@@ -53,7 +54,6 @@ public class TouchRotateY : MonoBehaviour
         {
             touchState = TouchState.idle;
             yAxisStart = 0;
-            yAxisAdd = 0;
         }
     }
 }
