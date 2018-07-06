@@ -52,10 +52,9 @@ namespace GoogleARCore.Examples.HelloAR
         /// </summary>
         public GameObject ArPrefab;
 
-        /// <summary>
-        /// A gameobject parenting UI for displaying the "searching for planes" snackbar.
-        /// </summary>
-        public GameObject SearchingForPlaneUI;
+        public GameObject UI_InfoBar;
+        public GameObject UI_Searching;
+        public GameObject UI_TapToPlace;
 
         /// <summary>
         /// The rotation in degrees need to apply to model when the prefab is placed
@@ -110,7 +109,27 @@ namespace GoogleARCore.Examples.HelloAR
                 }
             }
 
-            SearchingForPlaneUI.SetActive(showSearchingUI);
+            UI_Searching.SetActive(showSearchingUI);
+
+            bool showTapUI = false;
+
+            if (!showSearchingUI &&
+                m_arObject == null)
+            {
+                showTapUI = true;
+            }
+
+            UI_TapToPlace.SetActive(showTapUI);
+
+            bool showInfoBar = true;
+
+            if (!showSearchingUI &&
+                !showTapUI)
+            {
+                showInfoBar = false;
+            }
+
+            UI_InfoBar.SetActive(showInfoBar);
 
             // If the screen has been touched, then show the ground
             if (Input.touchCount > 0)
