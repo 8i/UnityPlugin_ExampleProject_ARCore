@@ -1,4 +1,4 @@
-﻿Shader "ARCore/PlaneGrid"
+﻿Shader "ARCore/PlaneGrid_Fade"
 {
     Properties
     {
@@ -43,6 +43,8 @@
             float3 _PlaneNormal;
             fixed _UvRotation;
 
+            float _ARCORE_PLANE_FADEAMOUNT;
+
             v2f vert (appdata v)
             {
                 v2f o;
@@ -64,13 +66,16 @@
                 float2 uv = plane_uv * _MainTex_ST.xy;
                 o.uv = mul(uvrotation, uv);
                 o.color = v.color;
+
                 return o;
             }
             
             fixed4 frag (v2f i) : SV_Target
             {
                 fixed4 col = tex2D(_MainTex, i.uv);
-                return fixed4(_GridColor.rgb, col.r * i.color.a);
+                col = fixed4(_GridColor.rgb, col.r * i.color.a);
+                col.a *= _ARCORE_PLANE_FADEAMOUNT;
+                return col;
             }
             ENDCG
         }

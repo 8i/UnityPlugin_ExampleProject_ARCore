@@ -40,6 +40,8 @@ namespace GoogleARCore.Examples.HelloAR
         /// </summary>
         public Camera FirstPersonCamera;
 
+        public GameObject RootObject;
+
         /// <summary>
         /// A prefab for tracking and visualizing detected planes.
         /// </summary>
@@ -56,7 +58,7 @@ namespace GoogleARCore.Examples.HelloAR
         public GameObject SearchingForPlaneUI;
 
         /// <summary>
-        /// The rotation in degrees need to apply to model when the Andy model is placed.
+        /// The rotation in degrees need to apply to model when the prefab is placed
         /// </summary>
         private const float k_ModelRotation = 180.0f;
 
@@ -72,6 +74,22 @@ namespace GoogleARCore.Examples.HelloAR
         private bool m_IsQuitting = false;
 
         private GameObject m_arObject;
+
+        enum TouchState
+        {
+            idle,
+            waitingForUp
+        }
+
+        private TouchState touchState = TouchState.idle;
+
+        private float startTime;
+
+        private float groundPlaneAlpha;
+        public float groundPlaneAlphaFade;
+        public AnimationCurve groundPlaneAnimCurve;
+
+        public Material materialGroundPlane;
 
         /// <summary>
         /// The Unity Update() method.
@@ -94,12 +112,64 @@ namespace GoogleARCore.Examples.HelloAR
 
             SearchingForPlaneUI.SetActive(showSearchingUI);
 
-            // If the player has not touched the screen, we are done with this update.
-            Touch touch;
-            if (Input.touchCount < 1 || (touch = Input.GetTouch(0)).phase != TouchPhase.Began)
+            // If the screen has been touched, then show the ground
+            if (Input.touchCount > 0)
             {
-                return;
+                groundPlaneAlpha = 1f;
             }
+            else
+            {
+                if (m_arObject != null)
+                {
+                    // If there hasn't been a screen interaction, start fading the ground plane
+                    groundPlaneAlpha -= Time.deltaTime / groundPlaneAlphaFade;
+                }
+                else
+                {
+                    groundPlaneAlpha = 1f;
+                }
+            }
+
+            groundPlaneAlpha = Mathf.Clamp01(groundPlaneAlpha);
+            float smoothAlpha = groundPlaneAnimCurve.Evaluate(groundPlaneAlpha);
+            Shader.SetGlobalFloat("_ARCORE_PLANE_FADEAMOUNT", smoothAlpha);
+
+            if (Input.touchCount == 1)
+            {
+                Touch t = Input.GetTouch(0);
+
+                if (t.phase == TouchPhase.Began)
+                {
+                    touchState = TouchState.waitingForUp;
+                    startTime = Time.time;
+                }
+
+                if (touchState == TouchState.waitingForUp)
+                {
+                    if (Time.time - startTime > 0.3f)
+                    {
+                        touchState = TouchState.idle;
+                    }
+                    else
+                    {
+                        // Finger is raised off the screen
+                        if (Input.GetTouch(0).phase == TouchPhase.Ended)
+                        {
+                            touchState = TouchState.idle;
+                            DropCheck();
+                        }
+                    }
+                }
+            }
+            else
+            {
+                touchState = TouchState.idle;
+            }
+        }
+
+        private void DropCheck()
+        {
+            Touch touch = Input.GetTouch(0);
 
             // Raycast against the location the player touched to search for planes.
             TrackableHit hit;
@@ -118,24 +188,27 @@ namespace GoogleARCore.Examples.HelloAR
                 }
                 else
                 {
+                    var anchor = hit.Trackable.CreateAnchor(hit.Pose);
+
+                    RootObject.transform.parent = anchor.transform;
+                    RootObject.transform.position = anchor.transform.position;
+                    RootObject.transform.rotation = anchor.transform.rotation;
+
+                    RootObject.transform.Rotate(0, k_ModelRotation, 0, Space.Self);
+
                     if (m_arObject != null)
                     {
                         Destroy(m_arObject);
                         m_arObject = null;
                     }
 
-                    // Instantiate Andy model at the hit pose.
-                    m_arObject = Instantiate(ArPrefab, hit.Pose.position, hit.Pose.rotation);
+                    // Instantiate prefab at the hit pose.
+                    m_arObject = Instantiate(ArPrefab);
 
-                    // Compensate for the hitPose rotation facing away from the raycast (i.e. camera).
-                    m_arObject.transform.Rotate(0, k_ModelRotation, 0, Space.Self);
-
-                    // Create an anchor to allow ARCore to track the hitpoint as understanding of the physical
-                    // world evolves.
-                    var anchor = hit.Trackable.CreateAnchor(hit.Pose);
-
-                    // Make Andy model a child of the anchor.
-                    m_arObject.transform.parent = anchor.transform;
+                    m_arObject.transform.parent = RootObject.transform;
+                    m_arObject.transform.localPosition = Vector3.zero;
+                    m_arObject.transform.localEulerAngles = Vector3.zero;
+                    m_arObject.transform.localScale = Vector3.one;
                 }
             }
         }
