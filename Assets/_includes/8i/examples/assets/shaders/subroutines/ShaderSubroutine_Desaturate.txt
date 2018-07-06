@@ -1,0 +1,34 @@
+BEGIN_GLSL_VERTEX(CalcVertexColour)
+
+    float <ID>Luminance(vec3 c)
+    {
+        return dot(c, vec3(0.22, 0.707, 0.071));
+    }
+    
+    vec4 CalcVertexColour(vec4 colour : VERTEX_COLOUR, vec4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        float lum = <ID>Luminance(colour.rgb);
+        float grey = mix(0, 1, lum);
+        colour.r = grey;
+        colour.g = grey;
+        colour.b = grey;
+        return colour;
+    }
+
+END_GLSL_VERTEX
+
+BEGIN_HLSL_VERTEX(CalcVertexColour)
+
+    float <ID>Luminance(float3 c)
+    {
+        return dot(c, float3(0.22, 0.707, 0.071));
+    }
+
+    float4 CalcVertexColour(float4 colour : VERTEX_COLOUR, float4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        float lum = <ID>Luminance(colour.rgb);
+        colour.rgb = lerp(0, 1, lum);
+        return colour;
+    }
+
+END_HLSL_VERTEX

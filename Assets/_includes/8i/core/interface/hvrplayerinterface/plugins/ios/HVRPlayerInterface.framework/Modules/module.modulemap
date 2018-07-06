@@ -1,0 +1,8 @@
+framework module HVRPlayerInterface {
+
+    header "CommonTypes.h"
+    header "ErrorCodes.h"
+    header "Types.h"
+    header "Export.h"
+    header "HVRPlayerInterface.h"
+}

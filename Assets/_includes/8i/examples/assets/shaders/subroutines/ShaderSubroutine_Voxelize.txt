@@ -1,0 +1,292 @@
+BEGIN_GLSL_VERTEX(CalcVertexObjectPosition, CalcVertexColour)
+
+    uniform float _<ID>Time;
+    uniform float _<ID>VoxelSize;
+    uniform float _<ID>NoisePower;
+    uniform float _<ID>NoiseStrength;
+    uniform vec3 _<ID>NoiseStrength_XYZ;
+
+    float <ID>mod(float x, float y)
+    {
+        return x - y * floor(x/y);
+    }
+
+    vec3 <ID>mod(vec3 x, vec3 y)
+    {
+        return x - y * floor(x / y);
+    }
+
+    vec3 <ID>mod289(vec3 x)
+    {
+        return x - floor(x / 289.0) * 289.0;
+    }
+
+    vec4 <ID>mod289(vec4 x)
+    {
+        return x - floor(x / 289.0) * 289.0;
+    }
+
+    vec4 <ID>permute(vec4 x)
+    {
+        return <ID>mod289(((x*34.0)+1.0)*x);
+    }
+
+    vec4 <ID>taylorInvSqrt(vec4 r)
+    {
+        return 1.79284291400159 - r * 0.85373472095314;
+    }
+
+    vec3 <ID>fade(vec3 t) {
+        return t*t*t*(t*(t*6.0-15.0)+10.0);
+    }
+
+    vec3 <ID>snoise_grad(vec3 v)
+    {
+        const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
+
+        // First corner
+        vec3 i  = floor(v + dot(v, C.yyy));
+        vec3 x0 = v   - i + dot(i, C.xxx);
+
+        // Other corners
+        vec3 g = step(x0.yzx, x0.xyz);
+        vec3 l = 1.0 - g;
+        vec3 i1 = min(g.xyz, l.zxy);
+        vec3 i2 = max(g.xyz, l.zxy);
+
+        // x1 = x0 - i1  + 1.0 * C.xxx;
+        // x2 = x0 - i2  + 2.0 * C.xxx;
+        // x3 = x0 - 1.0 + 3.0 * C.xxx;
+        vec3 x1 = x0 - i1 + C.xxx;
+        vec3 x2 = x0 - i2 + C.yyy;
+        vec3 x3 = x0 - 0.5;
+
+        // Permutations
+        i = <ID>mod289(i); // Avoid truncation effects in permutation
+        vec4 p =
+        <ID>permute(<ID>permute(<ID>permute(i.z + vec4(0.0, i1.z, i2.z, 1.0))
+                                + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+                                + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+
+        // Gradients: 7x7 points over a square, mapped onto an octahedron.
+        // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+        vec4 j = p - 49.0 * floor(p / 49.0);  // mod(p,7*7)
+
+        vec4 x_ = floor(j / 7.0);
+        vec4 y_ = floor(j - 7.0 * x_);  // mod(j,N)
+
+        vec4 x = (x_ * 2.0 + 0.5) / 7.0 - 1.0;
+        vec4 y = (y_ * 2.0 + 0.5) / 7.0 - 1.0;
+
+        vec4 h = 1.0 - abs(x) - abs(y);
+
+        vec4 b0 = vec4(x.xy, y.xy);
+        vec4 b1 = vec4(x.zw, y.zw);
+
+        //vec4 s0 = vec4(lessThan(b0, 0.0)) * 2.0 - 1.0;
+        //vec4 s1 = vec4(lessThan(b1, 0.0)) * 2.0 - 1.0;
+        vec4 s0 = floor(b0) * 2.0 + 1.0;
+        vec4 s1 = floor(b1) * 2.0 + 1.0;
+
+        float stepx = -step(h.x, 0.0);
+        float stepy = -step(h.y, 0.0);
+        float stepz = -step(h.z, 0.0);
+        float stepw = -step(h.z, 0.0);
+
+        vec4 sh = vec4(stepx, stepy, stepz, stepw);
+
+        vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+        vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+
+        vec3 g0 = vec3(a0.xy, h.x);
+        vec3 g1 = vec3(a0.zw, h.y);
+        vec3 g2 = vec3(a1.xy, h.z);
+        vec3 g3 = vec3(a1.zw, h.w);
+
+        // Normalise gradients
+        vec4 norm = <ID>taylorInvSqrt(vec4(dot(g0, g0), dot(g1, g1), dot(g2, g2), dot(g3, g3)));
+        g0 *= norm.x;
+        g1 *= norm.y;
+        g2 *= norm.z;
+        g3 *= norm.w;
+
+        // Compute gradient of noise function at P
+        vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+        vec4 m2 = m * m;
+        vec4 m3 = m2 * m;
+        vec4 m4 = m2 * m2;
+        vec3 grad =
+        -6.0 * m3.x * x0 * dot(x0, g0) + m4.x * g0 +
+        -6.0 * m3.y * x1 * dot(x1, g1) + m4.y * g1 +
+        -6.0 * m3.z * x2 * dot(x2, g2) + m4.z * g2 +
+        -6.0 * m3.w * x3 * dot(x3, g3) + m4.w * g3;
+        return 42.0 * grad;
+    }
+
+    float <ID>distance(vec3 a, vec3 b)
+    {
+        float x = (a[0] - b[0]) * (a[0] - b[0]);
+        float y = (a[1] - b[1]) * (a[1] - b[1]);
+        float z = (a[2] - b[2]) * (a[2] - b[2]);
+        return sqrt(x + y + z);
+    }
+
+    vec4 CalcVertexObjectPosition(vec4 oPos : OPOS) : OPOS
+    {
+        vec3 voxel = oPos.xyz * 0.01; // Shift into Unity scale ( 1 unit == 1m )
+        voxel.x = voxel.x - <ID>mod(voxel.x, _<ID>VoxelSize);
+        voxel.y = voxel.y - <ID>mod(voxel.y, _<ID>VoxelSize);
+        voxel.z = voxel.z - <ID>mod(voxel.z, _<ID>VoxelSize);
+        
+        vec3 offset = <ID>snoise_grad(voxel * _<ID>NoisePower) * _<ID>NoiseStrength_XYZ;
+        offset = <ID>snoise_grad(offset + (_<ID>Time * 0.1)) * _<ID>NoiseStrength_XYZ;
+        offset *= 100; // Shift into HvrEngine scale ( 1 unit == 100cm )
+        oPos.x += mix(0, offset.x, _<ID>NoiseStrength);
+        oPos.y += mix(0, offset.y, _<ID>NoiseStrength);
+        oPos.z += mix(0, offset.z, _<ID>NoiseStrength);
+
+        return oPos;
+    }
+
+END_GLSL_VERTEX
+
+
+BEGIN_HLSL_VERTEX(CalcVertexObjectPosition, CalcVertexColour)
+
+    cbuffer ColourTransferData
+    {
+        float _<ID>Time;
+        float _<ID>VoxelSize;
+        float _<ID>NoisePower;
+        float _<ID>NoiseStrength;
+        float3 _<ID>NoiseStrength_XYZ;
+    };
+
+    float3 <ID>mod(float3 x, float3 y)
+    {
+        return x - y * floor(x / y);
+    }
+
+    float3 <ID>mod289(float3 x)
+    {
+        return x - floor(x / 289.0) * 289.0;
+    }
+
+    float4 <ID>mod289(float4 x)
+    {
+        return x - floor(x / 289.0) * 289.0;
+    }
+
+    float4 <ID>permute(float4 x)
+    {
+        return <ID>mod289(((x*34.0)+1.0)*x);
+    }
+
+    float4 <ID>taylorInvSqrt(float4 r)
+    {
+        return (float4)1.79284291400159 - r * 0.85373472095314;
+    }
+
+    float3 <ID>fade(float3 t) {
+        return t*t*t*(t*(t*6.0-15.0)+10.0);
+    }
+
+    float3 <ID>snoise_grad(float3 v)
+    {
+        const float2 C = float2(1.0 / 6.0, 1.0 / 3.0);
+
+        // First corner
+        float3 i  = floor(v + dot(v, C.yyy));
+        float3 x0 = v   - i + dot(i, C.xxx);
+
+        // Other corners
+        float3 g = step(x0.yzx, x0.xyz);
+        float3 l = 1.0 - g;
+        float3 i1 = min(g.xyz, l.zxy);
+        float3 i2 = max(g.xyz, l.zxy);
+
+        // x1 = x0 - i1  + 1.0 * C.xxx;
+        // x2 = x0 - i2  + 2.0 * C.xxx;
+        // x3 = x0 - 1.0 + 3.0 * C.xxx;
+        float3 x1 = x0 - i1 + C.xxx;
+        float3 x2 = x0 - i2 + C.yyy;
+        float3 x3 = x0 - 0.5;
+
+        // Permutations
+        i = <ID>mod289(i); // Avoid truncation effects in permutation
+        float4 p =
+        <ID>permute(<ID>permute(<ID>permute(i.z + float4(0.0, i1.z, i2.z, 1.0))
+                                + i.y + float4(0.0, i1.y, i2.y, 1.0))
+                                + i.x + float4(0.0, i1.x, i2.x, 1.0));
+
+        // Gradients: 7x7 points over a square, mapped onto an octahedron.
+        // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
+        float4 j = p - 49.0 * floor(p / 49.0);  // mod(p,7*7)
+
+        float4 x_ = floor(j / 7.0);
+        float4 y_ = floor(j - 7.0 * x_);  // mod(j,N)
+
+        float4 x = (x_ * 2.0 + 0.5) / 7.0 - 1.0;
+        float4 y = (y_ * 2.0 + 0.5) / 7.0 - 1.0;
+
+        float4 h = 1.0 - abs(x) - abs(y);
+
+        float4 b0 = float4(x.xy, y.xy);
+        float4 b1 = float4(x.zw, y.zw);
+
+        //float4 s0 = float4(lessThan(b0, 0.0)) * 2.0 - 1.0;
+        //float4 s1 = float4(lessThan(b1, 0.0)) * 2.0 - 1.0;
+        float4 s0 = floor(b0) * 2.0 + 1.0;
+        float4 s1 = floor(b1) * 2.0 + 1.0;
+        float4 sh = -step(h, 0.0);
+
+        float4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+        float4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+
+        float3 g0 = float3(a0.xy, h.x);
+        float3 g1 = float3(a0.zw, h.y);
+        float3 g2 = float3(a1.xy, h.z);
+        float3 g3 = float3(a1.zw, h.w);
+
+        // Normalise gradients
+        float4 norm = <ID>taylorInvSqrt(float4(dot(g0, g0), dot(g1, g1), dot(g2, g2), dot(g3, g3)));
+        g0 *= norm.x;
+        g1 *= norm.y;
+        g2 *= norm.z;
+        g3 *= norm.w;
+
+        // Compute gradient of noise function at P
+        float4 m = max(0.6 - float4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
+        float4 m2 = m * m;
+        float4 m3 = m2 * m;
+        float4 m4 = m2 * m2;
+        float3 grad =
+        -6.0 * m3.x * x0 * dot(x0, g0) + m4.x * g0 +
+        -6.0 * m3.y * x1 * dot(x1, g1) + m4.y * g1 +
+        -6.0 * m3.z * x2 * dot(x2, g2) + m4.z * g2 +
+        -6.0 * m3.w * x3 * dot(x3, g3) + m4.w * g3;
+        return 42.0 * grad;
+    }
+
+    float <ID>distance(float3 a, float3 b)
+    {
+        float x = (a[0] - b[0]) * (a[0] - b[0]);
+        float y = (a[1] - b[1]) * (a[1] - b[1]);
+        float z = (a[2] - b[2]) * (a[2] - b[2]);
+        return sqrt(x + y + z);
+    }
+
+    float4 CalcVertexObjectPosition(float4 oPos : OPOS) : OPOS
+    {
+        float3 voxel = oPos.xyz * 0.01; // Shift into Unity scale ( 1 unit == 1m )
+        voxel.xyz = voxel.xyz - <ID>mod(voxel.xyz, _<ID>VoxelSize);
+        
+        float3 offset = <ID>snoise_grad(voxel * _<ID>NoisePower) * _<ID>NoiseStrength_XYZ;
+        offset = <ID>snoise_grad(offset + (_<ID>Time * 0.1)) * _<ID>NoiseStrength_XYZ;
+        offset *= 100; // Shift into HvrEngine scale ( 1 unit == 100cm )
+        oPos.xyz += lerp(0, offset, _<ID>NoiseStrength);
+
+        return oPos;
+    }
+
+END_HLSL_VERTEX

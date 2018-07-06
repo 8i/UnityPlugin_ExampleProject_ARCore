@@ -1,0 +1,70 @@
+BEGIN_GLSL_VERTEX(CalcVoxelScale)
+
+    uniform vec3 _<ID>position;
+    uniform vec3 _<ID>scale;
+
+    float <ID>Distance(vec3 a, vec3 b)
+    {
+        float x = (a[0] - b[0]) * (a[0] - b[0]);
+        float y = (a[1] - b[1]) * (a[1] - b[1]);
+        float z = (a[2] - b[2]) * (a[2] - b[2]);
+        return sqrt(x + y + z);
+    }
+
+    float <ID>InverseLerp(float _v, float _a, float _b)
+    {
+        return ((_v-_a)/(_b-_a));
+    }
+
+    float CalcVoxelScale(float scale : VOXEL_SCALE, vec4 oPos : OPOS) : VOXEL_SCALE
+    {
+        vec4 wPos = model * oPos;
+
+        float d = 1;
+
+        d = min(<ID>InverseLerp(<ID>Distance(wPos.xyz, _<ID>position), 0, abs(_<ID>scale.x)), d);
+
+        if (d < 1)
+            scale = 0;
+
+        return scale;
+    }
+
+END_GLSL_VERTEX
+
+BEGIN_HLSL_VERTEX(CalcVoxelScale)
+
+    cbuffer Data
+    {
+        float3 _<ID>position;
+        float3 _<ID>scale;
+    };
+
+    float <ID>Distance(float3 a, float3 b)
+    {
+        float x = (a[0] - b[0]) * (a[0] - b[0]);
+        float y = (a[1] - b[1]) * (a[1] - b[1]);
+        float z = (a[2] - b[2]) * (a[2] - b[2]);
+        return sqrt(x + y + z);
+    }
+
+    float <ID>InverseLerp(float _v, float _a, float _b)
+    {
+        return ((_v-_a)/(_b-_a));
+    }
+
+    float CalcVoxelScale(float scale : VOXEL_SCALE, float4 oPos : OPOS) : VOXEL_SCALE
+    {
+        float4 wPos = mul(model, oPos);
+
+        float d = 1;
+
+        d = min(<ID>InverseLerp(<ID>Distance(wPos.xyz, _<ID>position), 0, abs(_<ID>scale.x)), d);
+
+        if (d < 1)
+            scale = 0;
+
+        return scale;
+    }
+
+END_HLSL_VERTEX

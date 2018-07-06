@@ -1,0 +1,32 @@
+BEGIN_GLSL_VERTEX(CalcVertexColour)
+    uniform sampler2D _<ID>Texture;
+
+    vec4 CalcVertexColour(vec4 colour : VERTEX_COLOUR, vec4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        vec2 uv = oPos.xy * 0.005;
+        vec3 post = texture(_<ID>Texture, uv).rgb;
+        colour.rgb = colour.rgb * post;
+        return colour;
+    }
+END_GLSL_VERTEX
+
+BEGIN_HLSL_VERTEX(CalcVertexColour)
+
+    Texture2D _<ID>Texture;
+
+    SamplerState _<ID>TextureSampler
+    {
+        Filter = MIN_MAG_MIP_LINEAR;
+        AddressU = WRAP;
+        AddressV = WRAP;
+    };
+
+    float4 CalcVertexColour(float4 colour : VERTEX_COLOUR, float4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        float2 uv = oPos.xy * 0.005;
+        float3 post = _<ID>Texture.SampleLevel(_<ID>TextureSampler, uv, 0).rgb;
+        colour.rgb *= post;
+        return colour;
+    }
+
+END_HLSL_VERTEX

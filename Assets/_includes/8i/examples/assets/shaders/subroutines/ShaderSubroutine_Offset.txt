@@ -1,0 +1,19 @@
+BEGIN_GLSL_VERTEX(CalcVertexObjectPosition)
+    vec4 CalcVertexObjectPosition(vec4 oPos : OPOS) : OPOS
+    {
+        if (oPos.y > 100)
+            oPos.y += 30;
+
+        return oPos;
+    }
+END_GLSL_VERTEX
+
+BEGIN_HLSL_VERTEX(CalcVertexObjectPosition)
+    float4 CalcVertexObjectPosition(float4 oPos : OPOS) : OPOS
+    {
+        if (oPos.y > 100)
+            oPos.y += 30;
+
+        return oPos;
+    }
+END_HLSL_VERTEX

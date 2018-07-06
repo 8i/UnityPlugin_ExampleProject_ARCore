@@ -1,0 +1,28 @@
+#ifndef _COMMON_HEADERS_ERROR_CODES_H_
+#define _COMMON_HEADERS_ERROR_CODES_H_
+
+#include "Export.h"
+
+typedef int HVRError;
+
+const HVRError HVR_ERROR_SUCCESS = 0;
+const HVRError HVR_ERROR_UNKNOWN = 1;
+
+// Interface 100-199
+
+// Asset 200-299
+const HVRError HVR_ERROR_MANIFEST_NOT_FOUND = 200;
+const HVRError HVR_ERROR_MANIFEST_INVALID = 201;
+const HVRError HVR_ERROR_REPRESENTATION_NOT_FOUND = 202;
+const HVRError HVR_ERROR_REPRESENTATION_INVALID = 203;
+const HVRError HVR_ERROR_NO_VALID_DECODER_FOUND = 204;
+const HVRError HVR_ERROR_OFFLINE_CACHE_INVALID = 205;
+const HVRError HVR_ERROR_NO_VOLUMETRIC_TRACK = 206;
+const HVRError HVR_ERROR_FAILED_TO_READ_FRAMES = 207;
+const HVRError HVR_ERROR_FAILED_TO_DECODE_FRAME = 208;
+
+
+// TODO: Get this exporting correctly when used in the player interface, Kieran
+//API_INTERFACE const char* HVRError_ToString(HVRError error);
+
+#endif // _COMMON_HEADERS_ERROR_CODES_H_

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 8c8592fdae7422a4fa1ae17528e0ebf0
+timeCreated: 1522909245
+licenseType: Pro
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - textAsset: {fileID: 4900000, guid: cd3491b2a0d0f6c4187e83f250e710b4, type: 3}
+  - maskObject: {instanceID: 0}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

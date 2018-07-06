@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fea3ee4a1d0a94ac5beb03ace0438b69, type: 3}
+  m_Name: PluginReferenceController_Dependencies
+  m_EditorClassIdentifier: 
+  references:
+  - guid: d30b1f7fc2fb030479706bccfbe182f1
+    supportEditor: 1
+    platformNone: 0
+    platformWindows: 1
+    platformMac: 0
+    platformLinux: 0
+    platformAndroid: 0
+    platformiOS: 0
+    versionFilter: 
+  - guid: 302bdbbb51dc2154fbb170327f4f327d
+    supportEditor: 1
+    platformNone: 0
+    platformWindows: 1
+    platformMac: 0
+    platformLinux: 0
+    platformAndroid: 0
+    platformiOS: 0
+    versionFilter: 
+  - guid: 166e0ff46d2a2b944ad7a54898fd9e57
+    supportEditor: 1
+    platformNone: 0
+    platformWindows: 1
+    platformMac: 0
+    platformLinux: 0
+    platformAndroid: 0
+    platformiOS: 0
+    versionFilter: 

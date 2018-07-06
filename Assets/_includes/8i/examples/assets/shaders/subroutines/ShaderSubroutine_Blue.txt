@@ -1,0 +1,15 @@
+BEGIN_GLSL_VERTEX(CalcVertexColour)
+    vec4 CalcVertexColour(vec4 colour : VERTEX_COLOUR, vec4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        colour.rgb = vec3(0, 0, 1);
+        return colour;
+    }
+END_GLSL_VERTEX
+
+BEGIN_HLSL_VERTEX(CalcVertexColour)
+    float4 CalcVertexColour(float4 colour : VERTEX_COLOUR, float4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        colour.rgb = float3(0, 0, 1);
+        return colour;
+    }
+END_HLSL_VERTEX

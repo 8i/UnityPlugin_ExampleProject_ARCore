@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e506aa76c90fb14689f97082fd8c81f, type: 3}
+  m_Name: EditorSharedResources
+  m_EditorClassIdentifier: Assembly-CSharp-Editor:HVR.Editor:Inspector_HvrResources
+  headerLogo: {fileID: 2800000, guid: 5627844c61651644d90939e25c1ccde2, type: 3}
+  aboutWindowLogo: {fileID: 2800000, guid: 0a57ff903419c14468dc0b94fe983e34, type: 3}
+  hvrActorPlay: {fileID: 2800000, guid: 594f68e02ecd287419518369b760b1e2, type: 3}
+  hvrActorPause: {fileID: 2800000, guid: 6ccc2d6f29963e347adf65812b299cb0, type: 3}
+  hvrActorStop: {fileID: 2800000, guid: e47a1a302f6e9d6428216e3a8b8c0b04, type: 3}
+  hvrActorStepBack: {fileID: 2800000, guid: 414a7a4227301ec47aa5a9535b45b1cd, type: 3}
+  hvrActorStepForward: {fileID: 2800000, guid: 7351f3819f3e7054c8c500f30a96b19e, type: 3}
+  hvrActorStepLoopOn: {fileID: 2800000, guid: bc5347e9d3b2a42409deb2156e9a9b7e, type: 3}
+  hvrActorStepLoopOff: {fileID: 2800000, guid: 5eb24caf8aa30604d92773bca8b67c4c, type: 3}
+  hvrColorGradeNormal: {fileID: 2800000, guid: 7f2efd0253ae1fa41ad7567ffb8a361b, type: 3}
+  hvrColorGradeHover: {fileID: 2800000, guid: a22807a018ad8b64d8acea7429558964, type: 3}
+  hvrColorGradeActive: {fileID: 2800000, guid: 782af29a74fe2074b91a748f8449a6c8, type: 3}
+  hvrRenderEditorPreviewShader: {fileID: 4800000, guid: 3c6c3e00510679c47915b19b0886332d,
+    type: 3}
+  androidUnpackingScene: {fileID: 102900000, guid: a9de678fefe556d458b2bf960ceda40f,
+    type: 3}
+  plugin_HvrPlayerInterfaceFramework_macOS: {fileID: -1121539586, guid: 7bdf20cf1feaa4f60a67453a0845ee6c,
+    type: 3}
+  pluginCompatibility:
+  - {fileID: 11400000, guid: 610dfbb52b2d14e03817fbfeb2412f00, type: 2}
+  - {fileID: 11400000, guid: c891e8fc50802df4384b3455d39beec4, type: 2}
+  - {fileID: 11400000, guid: c3bcd53df4e64c84dac6f823bfa9992f, type: 2}
+  - {fileID: 11400000, guid: 1c31b71e28e1e49aab3220aff38c6cd6, type: 2}
+  - {fileID: 11400000, guid: b60e286f02b094600b96e0104af95006, type: 2}

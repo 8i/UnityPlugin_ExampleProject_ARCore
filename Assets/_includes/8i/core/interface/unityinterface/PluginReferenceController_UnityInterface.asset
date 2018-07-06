@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fea3ee4a1d0a94ac5beb03ace0438b69, type: 3}
+  m_Name: PluginReferenceController_UnityInterface
+  m_EditorClassIdentifier: 
+  references:
+  - guid: 26c76291b1bbcbc4688c4d1e9b38e785
+    supportEditor: 0
+    platformNone: 0
+    platformWindows: 0
+    platformMac: 0
+    platformLinux: 0
+    platformAndroid: 1
+    platformiOS: 0
+    versionFilter: 
+  - guid: 62e1b737b3be82048a19ab93c1096a7c
+    supportEditor: 0
+    platformNone: 0
+    platformWindows: 0
+    platformMac: 0
+    platformLinux: 0
+    platformAndroid: 0
+    platformiOS: 1
+    versionFilter: 
+  - guid: 12b5525b968334f499ae13017eeab047
+    supportEditor: 1
+    platformNone: 0
+    platformWindows: 0
+    platformMac: 0
+    platformLinux: 1
+    platformAndroid: 0
+    platformiOS: 0
+    versionFilter: 
+  - guid: 6577d8f18faa8422b906309fec627f1f
+    supportEditor: 1
+    platformNone: 0
+    platformWindows: 0
+    platformMac: 1
+    platformLinux: 0
+    platformAndroid: 0
+    platformiOS: 0
+    versionFilter: 
+  - guid: 6dd927b425f971d4b8ada509e7c5a1f5
+    supportEditor: 1
+    platformNone: 0
+    platformWindows: 1
+    platformMac: 0
+    platformLinux: 0
+    platformAndroid: 0
+    platformiOS: 0
+    versionFilter: 

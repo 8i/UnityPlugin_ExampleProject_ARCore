@@ -1,0 +1,93 @@
+BEGIN_GLSL_VERTEX(CalcVoxelScale, CalcVertexColour)
+
+    uniform float _<ID>FadeHeight;
+    uniform float _<ID>FadeSize;
+
+    float <ID>smooth(float f, float power) 
+    { 
+        f = 1.0 - pow(abs(sin(3.14 * f / 2.0)), power); 
+        return f; 
+    }
+
+    float CalcVoxelScale(float scale : VOXEL_SCALE, vec4 oPos : OPOS) : VOXEL_SCALE
+    {
+        float fadeEnd = _<ID>FadeHeight;
+
+        fadeEnd *= 100;
+
+        if (oPos.y > fadeEnd)
+        {
+            scale = 0;
+        }
+
+        return scale;
+    }
+
+    vec4 CalcVertexColour(vec4 colour : VERTEX_COLOUR, vec4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        float objPos_scaled = oPos.y * 0.01;
+
+        float fadeStart = _<ID>FadeHeight - _<ID>FadeSize;
+        float fadeEnd = _<ID>FadeHeight;
+
+        if (objPos_scaled > fadeStart)
+        {   
+            float blend = 1.0 - (objPos_scaled - fadeStart) / (fadeEnd - fadeStart);
+            blend = <ID>smooth(blend, 2.0);
+            vec3 colDiff = vec3(blend, blend, blend);
+            colDiff.rgb = colDiff.rgb * vec3(0.5, 0.5, 1.0);
+            colour.rgb += colDiff * 1.5;
+        }
+        
+        return colour;
+    }
+
+END_GLSL_VERTEX
+
+BEGIN_HLSL_VERTEX(CalcVoxelScale, CalcVertexColour)
+
+    cbuffer ColourTransferData
+    {
+        float _<ID>FadeHeight;
+        float _<ID>FadeSize;
+    };
+
+    float <ID>smooth(float f, float power) 
+    { 
+        f = 1.0 - pow(abs(sin(3.14 * f / 2.0)), power); 
+        return f; 
+    }
+
+    float CalcVoxelScale(float scale : VOXEL_SCALE, float4 oPos : OPOS) : VOXEL_SCALE
+    {
+        float fadeEnd = _<ID>FadeHeight;
+
+        fadeEnd *= 100;
+
+        if (oPos.y > fadeEnd)
+        {
+            scale = 0;
+        }
+
+        return scale;
+    }
+
+    float4 CalcVertexColour(float4 colour : VERTEX_COLOUR, float4 oPos : OPOS) : VERTEX_COLOUR
+    {
+        float objPos_scaled = oPos.y * 0.01;
+
+        float fadeStart = _<ID>FadeHeight - _<ID>FadeSize;
+        float fadeEnd = _<ID>FadeHeight;
+
+        if (objPos_scaled > fadeStart)
+        {   
+            float blend = 1.0 - (objPos_scaled - fadeStart) / (fadeEnd - fadeStart);
+            blend = <ID>smooth(blend, 2.0);
+            float3 colDiff = blend;
+            colDiff.rgb *= float3(0.5, 0.5, 1.0);
+            colour.rgb += colDiff * 1.5;
+        }
+        
+        return colour;
+    }
+END_HLSL_VERTEX
